@@ -1,0 +1,13 @@
+{
+  "name": "linkedin-keyboard-shortcut-text-formatter",
+  "version": "1.0.0",
+  "description": "Format LinkedIn text with keyboard shortcuts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/chrome": "^0.0.254"
+  }
+}

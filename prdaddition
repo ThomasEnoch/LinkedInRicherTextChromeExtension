@@ -1,0 +1,149 @@
+# LinkedIn Text Styling Extension PRD
+
+## Overview
+
+A browser extension that enables text styling (bold and italic) in LinkedIn text fields through Unicode character conversion.
+
+## Core Features
+
+### 1. Text Selection & Range Splitting
+
+#### Selection Detection
+- Capture text selection using `window.getSelection()`
+- Support both `<textarea>` and `[contenteditable="true"]` elements
+- Determine precise start and end offsets within text nodes
+
+#### Style Block Segmentation
+- Handle text regions with multiple styles:
+  - Plain (no style)
+  - Bold only
+  - Italic only
+  - Bold + Italic (stacked)
+- Split selection into uniform style blocks
+- Process partial character styling in overlapping nodes
+
+### 2. Style Detection and Management
+
+#### Character Style Detection
+- Unicode Range Mapping:
+  - Plain text: Standard ASCII/Unicode
+  - Bold: 0x1D400–0x1D7FF (Mathematical Bold)
+  - Italic: Dedicated italic range
+  - Bold+Italic: Combined style range
+
+#### Style Toggle Logic
+- Keyboard Shortcuts:
+  - Ctrl + B: Toggle bold
+  - Ctrl + I: Toggle italic
+
+- Toggle Rules:
+  1. Plain → Bold (Ctrl + B)
+  2. Plain → Italic (Ctrl + I)
+  3. Bold+Italic → Bold (remove italic)
+  4. Bold+Italic → Italic (remove bold)
+
+### 3. Character Conversion
+
+#### Mapping Tables
+- Bold Conversion: `a → 𝗮, b → 𝗯`
+- Italic Conversion: `a → 𝘢, b → 𝘣`
+- Bold+Italic Conversion: `a → 𝘼, b → 𝘽`
+
+#### Conversion Utility
+- Input: character and desired style state
+- Output: converted character based on style flags
+- Support for style removal and addition
+
+### 4. DOM Integration
+
+#### Text Replacement
+- Replace only highlighted content
+- Preserve surrounding text
+- Handle multi-node selections
+- Use appropriate DOM APIs:
+  - `document.execCommand('insertText')`
+  - `Range.deleteContents()`
+  - `Range.insertNode()`
+
+#### Cursor Management
+- Preserve cursor position after style changes
+
+## Edge Cases
+
+### Partial Selections
+- **Scenario**: Selection spans multiple style types
+- **Handling**: Break into segments, apply toggle logic, reassemble
+- **Priority**: High
+
+### Non-Latin Characters
+- **Scenario**: Emojis, ideographs, special characters
+- **Handling**: Preserve original if no style mapping exists
+- **Priority**: Medium
+
+### No Selection (Caret Only)
+- **Scenario**: Style toggle with no text selected
+- **Handling**: Optional future enhancement for "type-forward" styling
+- **Priority**: Low
+
+### LinkedIn DOM Changes
+- **Scenario**: Automatic DOM mutations by LinkedIn
+- **Handling**: Implement MutationObserver for stability
+- **Priority**: High
+
+## Performance Requirements
+
+### Constraints
+- All computation must be client-side
+- O(n) complexity for character processing
+- Minimal DOM operations
+
+### Optimizations
+1. Use direct character mapping tables
+2. Cache style detection results
+3. Batch DOM updates when possible
+4. Minimize reflow/repaint operations
+
+## Implementation Flow Example
+
+1. User selects text spanning multiple styles
+2. User triggers Ctrl + I
+3. System:
+   - Splits selection into style blocks
+   - Processes each block independently
+   - Reassembles converted text
+   - Updates DOM
+   - Restores selection state
+
+## Future Enhancements
+
+- Support for additional text styles (underline, strikethrough)
+- Type-forward styling mode
+- Custom shortcut configuration
+- Style persistence across page reloads
+
+## Technical Dependencies
+
+- Browser Text Selection API
+- DOM Mutation Observer
+- Unicode character ranges
+- LinkedIn text field DOM structure
+
+## Testing Requirements
+
+1. Style Toggle Accuracy
+   - Single style application
+   - Multiple style combinations
+   - Style removal
+   - Partial selections
+
+2. Edge Case Handling
+   - Mixed style selections
+   - Non-Latin characters
+   - Empty selections
+   - DOM mutations
+
+3. Performance Testing
+   - Large text selections
+   - Rapid style toggles
+   - Memory usage
+   - DOM update efficiency
